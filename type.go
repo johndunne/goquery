@@ -39,7 +39,7 @@ func NewDocumentFromNode(root *html.Node) *Document {
 // node, ready to be manipulated.
 func NewDocument(url string) (*Document, error) {
 	// Load the URL
-	var res *http.Response
+	var response *http.Response
 	if tlsConfig != nil {
 		tr := &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
@@ -49,13 +49,15 @@ func NewDocument(url string) (*Document, error) {
 		if e != nil {
 			return nil, e
 		}
+		response = res
 	} else {
 		res, e := http.Get(url)
 		if e != nil {
 			return nil, e
 		}
+		response = res
 	}
-	return NewDocumentFromResponse(res)
+	return NewDocumentFromResponse(response)
 }
 
 // NewDocumentFromReader returns a Document from a generic reader.
