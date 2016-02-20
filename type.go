@@ -45,7 +45,7 @@ func NewDocument(url string) (*Document, error) {
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		}
 		client := &http.Client{Transport: tr}
-		res, e := http.Get(url)
+		res, e := client.Get(url)
 		if e != nil {
 			return nil, e
 		}
