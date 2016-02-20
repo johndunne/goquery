@@ -1,6 +1,7 @@
 package goquery
 
 import (
+	"crypto/tls"
 	"errors"
 	"io"
 	"net/http"
@@ -8,6 +9,13 @@ import (
 
 	"golang.org/x/net/html"
 )
+
+// TLS config
+var tlsConfig *tls.Config
+
+func ApplyTlsConfig(new_tls_config *tls.Config) {
+	tlsConfig = new_tls_config
+}
 
 // Document represents an HTML document to be manipulated. Unlike jQuery, which
 // is loaded as part of a DOM document, and thus acts upon its containing
@@ -31,9 +39,21 @@ func NewDocumentFromNode(root *html.Node) *Document {
 // node, ready to be manipulated.
 func NewDocument(url string) (*Document, error) {
 	// Load the URL
-	res, e := http.Get(url)
-	if e != nil {
-		return nil, e
+	var res *http.Response
+	if tlsConfig != nil {
+		tr := &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		}
+		client := &http.Client{Transport: tr}
+		res, e := http.Get(url)
+		if e != nil {
+			return nil, e
+		}
+	} else {
+		res, e := http.Get(url)
+		if e != nil {
+			return nil, e
+		}
 	}
 	return NewDocumentFromResponse(res)
 }
